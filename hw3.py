@@ -70,6 +70,7 @@ def alignment(input_path, score_path, output_path, aln, gap):
         max_position = np.where(alg_table == np.max(alg_table, axis=None))
         #The traceback(s) corresponding to the highest scores 
         traceback_list = []
+        starting_position_list = []
         
 
         for i in range(len(max_position[0])):
@@ -89,13 +90,17 @@ def alignment(input_path, score_path, output_path, aln, gap):
                 traceback.append(previous_action)
             traceback.reverse()
             traceback.pop(0)
+            starting_position = [latest_row, latest_column]
             traceback_list.append(traceback)
+            starting_position_list.append(starting_position)
             
         #The traceback(s) with the highest score and longest length are selected
         traceback_selected = []
+        starting_position_selected = []
         for i in range(len(traceback_list)):
             if len(traceback_list[i]) == len(max(traceback_list, key=len)):
                 traceback_selected.append(traceback_list[i])
+                starting_position_selected.append(starting_position_list[i])
     else:
         #For global alignments
         previous_action = d_table[len(seq1), len(seq2)]
@@ -116,6 +121,7 @@ def alignment(input_path, score_path, output_path, aln, gap):
         traceback.reverse()
         traceback.pop(0)
         traceback_selected = [traceback]
+        starting_position_selected = [[latest_row, latest_column]]
     
     #CREATE ALIGNED SEQUENCES
     aseq1_list = []
@@ -125,8 +131,8 @@ def alignment(input_path, score_path, output_path, aln, gap):
         traceback = traceback_selected[t]
         aseq1 = []
         aseq2 = []
-        aseq1_index = latest_row
-        aseq2_index = latest_column
+        aseq1_index = starting_position_selected[t][0]
+        aseq2_index = starting_position_selected[t][1]
         for i in range(len(traceback)):
             if traceback[i] == 1:
                 aseq1.append(seq1.at[aseq1_index,0])
